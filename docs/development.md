@@ -230,6 +230,8 @@ For testing with Docker:
 ```bash
 REDIS_HOST=redis        # Default: localhost
 REDIS_PORT=6379         # Default: 6379
+VALKEY_HOST=valkey        # Default: localhost
+VALKEY_PORT=6380         # Default: 6380
 MEMCACHED_HOST=memcached # Default: localhost
 MEMCACHED_PORT=11211    # Default: 11211
 ```

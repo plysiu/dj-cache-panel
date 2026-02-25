@@ -205,6 +205,10 @@ services:
     image: redis:latest
     ports:
       - 6379:6379
+  valkey:
+    image: valkey/valkey:latest
+    ports:
+      - 6380:6380
   memcached:
     image: memcached:latest
     ports:
@@ -301,6 +305,12 @@ pytest tests/ -k "redis"
 ```bash
 docker run -d -p 6379:6379 redis:latest
 ```
+
+**Solution**: Start Valkey:
+```bash
+docker run -d -p 6380:6380 valkey/valkey:latest
+```
+
 
 ### Memcached Connection Issues
 

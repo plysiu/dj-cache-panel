@@ -188,7 +188,7 @@ CACHES = {
     },
     "django_valkey": {
         "BACKEND": "django_valkey.cache.ValkeyCache",
-        "LOCATION": "valkey://valkey:6379/0",
+        "LOCATION": "valkey://valkey:6380/0",
     },
     
     # Custom backend, technically possible but testing is beyond the scope of this project.

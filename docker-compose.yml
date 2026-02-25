@@ -34,8 +34,9 @@ services:
   
   valkey:
     image: valkey/valkey:9
+    command: ["valkey-server", "--port", "6380"]
     ports:
-      - "6379:6379"
+      - "6380:6380"
 
   memcached:
     image: memcached:1.6
