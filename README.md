@@ -199,13 +199,13 @@ If you want to contribute to this project or set it up for local development:
 
 ### Prerequisites
 
-- Python 3.9 or higher
-- Redis and Valkey servers running locally
+- Python 3.10 or higher
+- Redis Valkey, memcached servers running locally
 - Git
 - Autoconf
 - Docker
 
-It is reccommended that you use docker since it will automate much of dev env setup
+It is recommended that you use docker since it will automate much of dev env setup
 
 ### 1. Clone the Repository
 
