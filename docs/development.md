@@ -4,7 +4,7 @@ Contributing to Django Cache Panel or setting up for local development.
 
 ## Prerequisites
 
-- Python 3.9+
+- Python 3.10+
 - Git
 - Docker (recommended)
 - Redis, Valkey & Memcached (for testing)
@@ -29,7 +29,7 @@ make docker_shell    # Open shell in container
 
 Services included:
 - Redis (port 6379)
-- Valkey (port 6379)
+- Valkey (port 6380)
 - Memcached (port 11211)
 - Development container
 
@@ -53,7 +53,7 @@ Start external services:
 docker run -d -p 6379:6379 redis:latest
 
 # Valkey
-docker run -d -p 6379:6379 valkey/valkey:latest
+docker run -d -p 6380:6380 valkey/valkey:latest
 
 # Memcached
 docker run -d -p 11211:11211 memcached:latest

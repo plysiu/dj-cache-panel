@@ -32,6 +32,7 @@ docker-compose up -d
 
 # Or individual containers
 docker run -d -p 6379:6379 redis:latest
+docker run -d -p 6380:6380 valkey/valkey:latest
 docker run -d -p 11211:11211 memcached:latest
 ```
 
@@ -86,6 +87,7 @@ TEST_CACHES = {
     'dummy': DummyCache,
     'redis': RedisCache,
     'django_redis': DjangoRedisCache,
+    'django_valkey': DjangoValkeyCache,
     'memcached': MemcachedCache,
 }
 ```
@@ -94,7 +96,7 @@ TEST_CACHES = {
 
 Tests iterate through categorized caches:
 
-- **QUERY_SUPPORTED_CACHES**: `locmem`, `database`, `redis`, `django_redis`
+- **QUERY_SUPPORTED_CACHES**: `locmem`, `database`, `redis`, `django_redis`, `django_valkey`
 - **NON_QUERY_CACHES**: `dummy`, `filesystem`, `memcached`
 - **OPERATIONAL_CACHES**: All except `dummy`
 
@@ -216,6 +218,7 @@ services:
 
 env:
   REDIS_HOST: localhost
+  VALKEY_HOST: localhost
   MEMCACHED_HOST: localhost
 ```
 
@@ -224,10 +227,12 @@ env:
 ```yaml
 services:
   - redis:latest
+  - valkey:latest
   - memcached:latest
 
 variables:
   REDIS_HOST: redis
+  VALKEY_HOST: rvalkeys
   MEMCACHED_HOST: memcached
 ```
 
@@ -297,7 +302,7 @@ pytest tests/ -k "redis"
 
 ## Common Issues
 
-### Redis Connection Refused
+### Redis or Valkey Connection Refused
 
 **Error**: `redis.exceptions.ConnectionError: Error 111 connecting to localhost:6379`
 
