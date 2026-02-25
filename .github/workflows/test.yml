@@ -8,24 +8,22 @@ jobs:
     name: Python ${{ matrix.python-version }} - Django ${{ matrix.django-version }}
     strategy:
       matrix:
-        python-version: [3.10, 3.14]
-        django-version: [4.2, 5.2, 6.0]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        django-version: ["4.2", "5.2", "6.0"]
         exclude:
-          # Django 5.0+ requires Python 3.10+
-          - python-version: 3.10
-            django-version: 6.0
-          - python-version: 3.10
-            django-version: 5.2
-          - python-version: 3.14
-            django-version: 4.2
-
+          - python-version: "3.10"
+            django-version: "6.0"
+          - python-version: "3.11"
+            django-version: "6.0"
+          - python-version: "3.12"
+            django-version: "4.2"
     services:
       redis:
         image: redis:7.4.1
         ports: ["6379:6379"]
       valkey:
         image: valkey/valkey:9.0.0
-        ports: ["6380:6380"]
+        ports: ["6380:6379"]
       memcached:
         image: memcached:1.6
         ports: ["11211:11211"]
@@ -48,12 +46,12 @@ jobs:
 
       - name: Install package and dependencies
         run: |
-            make install
-            pip install "Django~=${{ matrix.django-version }}.0"
+          make install
+          pip install "Django~=${{ matrix.django-version }}.0"
 
       - name: Run tests with coverage
         run: |
-            pytest --cov=dj_cache_panel --cov-report=xml
+          pytest --cov=dj_cache_panel --cov-report=xml
         env:
           TEST_DB_BACKEND: postgresql
           POSTGRES_HOST: localhost
