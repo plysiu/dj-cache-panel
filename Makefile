@@ -63,7 +63,7 @@ test_docker:
 	@echo "Waiting for services to be ready..."
 	@sleep 3
 	@echo "Running tests in dev container..."
-	@docker compose exec dev bash -c "cd /app && REDIS_HOST=redis VALKEY_HOST=valkey python -m pytest tests/ -v"
+	@docker compose exec dev bash -c "cd /app && REDIS_HOST=redis VALKEY_HOST=valkey MEMCACHED_HOST=memcached python -m pytest tests/ -v"
 	@echo "✅ Tests completed"
 
 test_coverage:
@@ -72,7 +72,7 @@ test_coverage:
 	@echo "Waiting for cluster to initialize..."
 	@sleep 3
 	@echo "Running all tests in dev container..."
-	@docker compose exec dev bash -c "cd /app && REDIS_HOST=redis VALKEY_HOST=valkey python -m pytest --cov=dj_cache_panel --cov-report=xml --cov-report=html --cov-report=term-missing tests/"
+	@docker compose exec dev bash -c "cd /app && REDIS_HOST=redis VALKEY_HOST=valkey MEMCACHED_HOST=memcached python -m pytest --cov=dj_cache_panel --cov-report=xml --cov-report=html --cov-report=term-missing tests/"
 	@echo "✅ All tests completed"
 
 coverage_html: test_coverage

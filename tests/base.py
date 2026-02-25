@@ -70,7 +70,7 @@ TEST_CACHES = {
 }
 
 # Categorize caches by their query support
-QUERY_SUPPORTED_CACHES = ["locmem", "database", "redis", "django_redis"]
+QUERY_SUPPORTED_CACHES = ["locmem", "database", "redis", "django_redis", "django_valkey"]
 NON_QUERY_CACHES = ["dummy", "filesystem", "memcached"]
 
 # All caches that support basic operations (get, set, delete)

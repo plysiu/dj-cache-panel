@@ -230,7 +230,7 @@ make install # this will also do the above in one single command
 ### 2b. Set up dev environment using docker
 
 ```bash
-make docker_up  # bring up all services (redis, valkey, memached) and dev environment container
+make docker_up  # bring up all services (redis, valkey, memcached) and dev environment container
 make docker_shell  # open up a shell in the docker conatiner
 ```
 
