@@ -186,6 +186,11 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",  # first party django redis cache backend
         "LOCATION": "redis://redis:6379/0",
     },
+    "django_valkey": {
+        "BACKEND": "django_valkey.cache.ValkeyCache",
+        "LOCATION": "valkey://valkey:6379/0",
+    },
+    
     # Custom backend, technically possible but testing is beyond the scope of this project.
     # "custom": {
     #     "BACKEND": "mypackage.backends.whatever.WhateverCache",

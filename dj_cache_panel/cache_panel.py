@@ -15,6 +15,8 @@ BACKEND_PANEL_MAP_DEFAULT = {
     # Redis backends (standalone - cluster detection happens in get_cache_panel)
     "django.core.cache.backends.redis.RedisCache": "RedisCachePanel",  # Django's built-in (4.0+)
     "django_redis.cache.RedisCache": "DjangoRedisCachePanel",  # django-redis library
+    # Valkey cache backend  
+    "django_valkey.cache.ValkeyCache": "ValkeyCachePanel",
     # Memcached backends
     "django.core.cache.backends.memcached.PyMemcacheCache": "MemcachedCachePanel",
     "django.core.cache.backends.memcached.PyLibMCCache": "MemcachedCachePanel",
@@ -875,3 +877,13 @@ class RedisClusterCachePanel(CachePanel):
         "add_key": True,
         "flush_cache": True,
     }
+    
+class ValkeyCachePanel(DjangoRedisCachePanel):
+    """
+    Panel for the Valkey cache backend.
+    
+    Since Valkey is a Redis fork and maintains RESP protocol compatibility, 
+    this panel inherits all scanning and key management logic from 
+    DjangoRedisCachePanel.
+    """
+    pass

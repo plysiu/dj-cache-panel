@@ -51,6 +51,7 @@ dev = [
     "django-redis>=5.0.0",
     "psycopg2-binary>=2.9.0",
     "mkdocs-material>=9.1.12",
+    "django-valkey>=0.3.0",
 ]
 build = [
     "build>=1.0.0",

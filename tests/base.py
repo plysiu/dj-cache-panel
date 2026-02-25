@@ -21,11 +21,13 @@ FILE_BASED_CACHE_DIR = tempfile.mkdtemp(prefix="dj_cache_panel_test_")
 # Environment variables for external services
 REDIS_HOST = os.environ.get("REDIS_HOST", "localhost")
 REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
+VALKEY_HOST = os.environ.get("VALKEY_HOST", "localhost")
+VALKEY_PORT = os.environ.get("VALKEY_PORT", "6379")
 MEMCACHED_HOST = os.environ.get("MEMCACHED_HOST", "localhost")
 MEMCACHED_PORT = os.environ.get("MEMCACHED_PORT", "11211")
 
 # Define cache configurations for testing
-# Redis and Memcached are assumed to be available
+# Redis, Valkey and Memcached are assumed to be available
 TEST_CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -57,6 +59,10 @@ TEST_CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
+    "django_valkey": {
+        "BACKEND": "django_valkey.cache.ValkeyCache",
+        "LOCATION": f"redis://{VALKEY_HOST}:{VALKEY_PORT}/2",
+    },
     "memcached": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
         "LOCATION": f"{MEMCACHED_HOST}:{MEMCACHED_PORT}",
@@ -74,6 +80,8 @@ OPERATIONAL_CACHES = [
     "filesystem",
     "redis",
     "django_redis",
+    "django_valkey",
+    
     "memcached",
 ]
 

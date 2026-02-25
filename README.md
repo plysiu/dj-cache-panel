@@ -200,7 +200,7 @@ If you want to contribute to this project or set it up for local development:
 ### Prerequisites
 
 - Python 3.9 or higher
-- Redis server running locally
+- Redis and Valkey servers running locally
 - Git
 - Autoconf
 - Docker
@@ -230,7 +230,7 @@ make install # this will also do the above in one single command
 ### 2b. Set up dev environment using docker
 
 ```bash
-make docker_up  # bring up all services (redis, memached) and dev environment container
+make docker_up  # bring up all services (redis, valkey, memached) and dev environment container
 make docker_shell  # open up a shell in the docker conatiner
 ```
 
@@ -272,7 +272,7 @@ by invoking pytest directly:
 make test_docker
 
 # Test without the docker on your host machine.
-# note that testing always requires a redis and memcached service to be up.
+# note that testing always requires a redis valkey, and memcached service to be up.
 # these are mostly easily brought up using docker
 make test_local
 ```
