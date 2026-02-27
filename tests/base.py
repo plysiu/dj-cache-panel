@@ -2,12 +2,13 @@
 Base test class for dj-cache-panel tests.
 """
 
-from django.test import TestCase, override_settings
-from django.contrib.auth import get_user_model
+import importlib.util
+import os
 from pathlib import Path
 import tempfile
-import os
 
+from django.test import TestCase, override_settings
+from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -26,6 +27,7 @@ VALKEY_PORT = os.environ.get("VALKEY_PORT", "6380")
 MEMCACHED_HOST = os.environ.get("MEMCACHED_HOST", "localhost")
 MEMCACHED_PORT = os.environ.get("MEMCACHED_PORT", "11211")
 
+HAS_DJANGO_VALKEY = importlib.util.find_spec("django_valkey") is not None
 # Define cache configurations for testing
 # Redis, Valkey and Memcached are assumed to be available
 TEST_CACHES = {
@@ -59,18 +61,15 @@ TEST_CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
-    "django_valkey": {
-        "BACKEND": "django_valkey.cache.ValkeyCache",
-        "LOCATION": f"valkey://{VALKEY_HOST}:{VALKEY_PORT}/2",
-    },
     "memcached": {
         "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
         "LOCATION": f"{MEMCACHED_HOST}:{MEMCACHED_PORT}",
     },
 }
 
+
 # Categorize caches by their query support
-QUERY_SUPPORTED_CACHES = ["locmem", "database", "redis", "django_redis", "django_valkey"]
+QUERY_SUPPORTED_CACHES = ["locmem", "database", "redis", "django_redis"]
 NON_QUERY_CACHES = ["dummy", "filesystem", "memcached"]
 
 # All caches that support basic operations (get, set, delete)
@@ -83,6 +82,14 @@ OPERATIONAL_CACHES = [
     "django_valkey",
     "memcached",
 ]
+
+if HAS_DJANGO_VALKEY:
+    QUERY_SUPPORTED_CACHES.append("django_valkey")
+    OPERATIONAL_CACHES.append("django_valkey")
+    TEST_CACHES["django_valkey"] = {
+        "BACKEND": "django_valkey.cache.ValkeyCache",
+        "LOCATION": f"valkey://{VALKEY_HOST}:{VALKEY_PORT}/2",
+    }
 
 
 @override_settings(CACHES=TEST_CACHES)
