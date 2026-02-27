@@ -32,7 +32,7 @@ classifiers = [
 ]
 keywords = ["django", "cache", "admin", "panel", "caching", "django-cache"]
 dependencies = [
-    "django>=4.2,!=5.0.*,!=5.1.*"
+    "django>=4.2
     ]
 
 [project.entry-points."dj_control_room.panels"]
@@ -47,9 +47,12 @@ dev = [
     "pymemcache>=4.0.0",
     "django-redis>=5.0.0",
     "psycopg2-binary>=2.9.0",
-    "mkdocs-material>=9.1.12",
+    "mkdocs-material>=9.1.12"
+]
+valkey = [
     "django-valkey>=0.4.0",
 ]
+
 build = [
     "build>=1.0.0",
     "twine>=4.0.0",
