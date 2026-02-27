@@ -32,8 +32,8 @@ classifiers = [
 ]
 keywords = ["django", "cache", "admin", "panel", "caching", "django-cache"]
 dependencies = [
-    "django>=4.2
-    ]
+    "django>=4.2"
+]
 
 [project.entry-points."dj_control_room.panels"]
 dj_cache_panel = "dj_cache_panel.panel:CachePanel"
