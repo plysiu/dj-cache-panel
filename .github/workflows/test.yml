@@ -12,7 +12,7 @@ jobs:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
         django-version: ["4.2", "5.2", "6.0"]
-        valkey: [true, false]
+        valkey: [false, true]
         exclude:
           # -------------------------------------------------
           # django 6.0 requires python >=3.12
@@ -32,7 +32,7 @@ jobs:
           # valkey requires python >=3.10
           # -------------------------------------------------
           - python-version: "3.9"
-            valkey: false
+            valkey: true
     services:
       redis:
         image: redis:7.4.1
