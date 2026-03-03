@@ -24,22 +24,26 @@ tests/
 
 ### Prerequisites
 
-Redis and Memcached must be running:
+Redis, Valkey, and Memcached must be running:
 
 ```bash
-# Docker (recommended)
+# Using Docker Compose (recommended)
 docker-compose up -d
 
-# Or individual containers
+# Or start individual containers
 docker run -d -p 6379:6379 redis:latest
 docker run -d -p 6380:6380 valkey/valkey:latest
 docker run -d -p 11211:11211 memcached:latest
+docker run -d -p 5432:5432 postgres:latest
 ```
 
 ### Run All Tests
 
 ```bash
-# Using Make
+# Using Make with Docker
+make test_docker
+
+# Using Make locally
 make test_local
 
 # Using pytest directly
@@ -48,6 +52,26 @@ pytest tests/
 # With verbose output
 pytest tests/ -v
 ```
+
+### Testing with Valkey Support
+
+Django Cache Panel includes comprehensive testing for the optional Valkey backend:
+
+```bash
+# Test with Valkey support enabled (Docker)
+INSTALL_VALKEY=true make test_docker
+
+# Test locally with Valkey
+INSTALL_VALKEY=true make test_local
+
+# Test with specific Python version
+PYTHON_VERSION=3.11 INSTALL_VALKEY=true make test_docker
+```
+
+**Note:** When `INSTALL_VALKEY=false` or Python < 3.10:
+- `django_valkey` is not installed
+- Tests automatically skip Valkey backend
+- All other cache backends are tested normally
 
 ### Run Specific Tests
 
@@ -96,8 +120,31 @@ TEST_CACHES = {
 
 Tests iterate through categorized caches:
 
-- **QUERY_SUPPORTED_CACHES**: `locmem`, `database`, `redis`, `django_redis`, `django_valkey`
+- **QUERY_SUPPORTED_CACHES**: `locmem`, `database`, `redis`, `django_redis`, `django_valkey` (if installed)
 - **NON_QUERY_CACHES**: `dummy`, `filesystem`, `memcached`
+- **OPERATIONAL_CACHES**: `locmem`, `redis`, `django_redis`, `django_valkey` (if installed), `memcached`, `database`
+
+### Valkey Backend Support
+
+The `django_valkey` cache backend is included in test coverage when:
+1. Python version is 3.10 or higher
+2. `django-valkey` package is installed
+3. Valkey service is running on port 6380
+
+The test suite automatically detects whether Valkey is available and includes/excludes it from test runs accordingly using `importlib.util.find_spec()` for safe runtime detection.
+
+Test configuration in `tests/base.py`:
+```python
+HAS_DJANGO_VALKEY = importlib.util.find_spec("django_valkey") is not None
+
+if HAS_DJANGO_VALKEY:
+    QUERY_SUPPORTED_CACHES.append("django_valkey")
+    OPERATIONAL_CACHES.append("django_valkey")
+    TEST_CACHES["django_valkey"] = {
+        "BACKEND": "django_valkey.cache.ValkeyCache",
+        "LOCATION": f"valkey://{VALKEY_HOST}:{VALKEY_PORT}/2",
+    }
+```
 - **OPERATIONAL_CACHES**: All except `dummy`
 
 ## Test Patterns

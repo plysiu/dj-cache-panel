@@ -83,6 +83,19 @@ Get a list of all your caches as well as the allowed capabilities for each cache
 pip install dj-cache-panel
 ```
 
+#### Optional: Valkey Support
+
+Django Cache Panel supports **Valkey** cache backend as an optional dependency. Valkey requires Python 3.10+.
+
+```bash
+# Install with Valkey support
+pip install dj-cache-panel[valkey]
+```
+
+This installs:
+- `django-valkey` - Valkey cache backend for Django
+- All other optional development dependencies
+
 ### 2. Add to Django Settings
 
 Add `dj_cache_panel` to your `INSTALLED_APPS`:
@@ -199,11 +212,10 @@ If you want to contribute to this project or set it up for local development:
 
 ### Prerequisites
 
-- Python 3.10 or higher
-- Redis Valkey, memcached servers running locally
+- Python 3.10+ (3.9 also supported but Valkey requires 3.10+)
+- Redis, Valkey, and Memcached servers running locally (or use Docker)
 - Git
-- Autoconf
-- Docker
+- Docker (recommended for simplified setup)
 
 It is recommended that you use docker since it will automate much of dev env setup
 
@@ -220,19 +232,36 @@ cd dj-cache-panel
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-pip install -e . # install dj-cache-panel package locally
-pip intall -r requirements.txt  # install all dev requirements
+# Install base package and development dependencies
+make install
 
-# Alternatively
-make install # this will also do the above in one single command
+# Or with Valkey support (Python 3.10+)
+INSTALL_VALKEY=true make install
+
+# Or manually
+pip install -e .
+pip install -r requirements.txt
 ```
 
 ### 2b. Set up dev environment using docker
 
 ```bash
-make docker_up  # bring up all services (redis, valkey, memcached) and dev environment container
-make docker_shell  # open up a shell in the docker conatiner
+# Default setup with Python 3.10
+make docker_up
+
+# Or with Valkey support
+INSTALL_VALKEY=true make docker_up
+
+# Or with different Python version
+PYTHON_VERSION=3.11 make docker_up
+
+# Then open a shell
+make docker_shell
 ```
+
+**Environment Variables:**
+- `INSTALL_VALKEY=true` - Install and enable Valkey support (requires Python 3.10+)
+- `PYTHON_VERSION=3.11` - Use specific Python version for Docker (default: 3.10)
 
 ### 3. Set Up Example Project
 
@@ -268,11 +297,17 @@ The project includes a comprehensive test suite. You can run them by using make 
 by invoking pytest directly:
 
 ```bash
-# build and install all dev dependencies and run all tests inside of docker container
+# Test in Docker container
 make test_docker
 
-# Test without the docker on your host machine.
-# note that testing always requires a redis valkey, and memcached service to be up.
-# these are mostly easily brought up using docker
+# Test with Valkey support enabled
+INSTALL_VALKEY=true make test_docker
+
+# Test with specific Python version
+PYTHON_VERSION=3.11 make test_docker
+
+# Test without Docker (requires redis, valkey, memcached services running)
 make test_local
 ```
+
+**Note:** When `INSTALL_VALKEY=true` is set, the docker image will be built with Python 3.10+ and Valkey support enabled automatically.

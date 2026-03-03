@@ -27,10 +27,23 @@ make docker_up       # Start all services
 make docker_shell    # Open shell in container
 ```
 
+**With Valkey Support (Python 3.10+):**
+```bash
+INSTALL_VALKEY=true make docker_up
+INSTALL_VALKEY=true make docker_shell
+```
+
+**With Different Python Version:**
+```bash
+PYTHON_VERSION=3.11 make docker_up
+PYTHON_VERSION=3.11 INSTALL_VALKEY=true make docker_up
+```
+
 Services included:
 - Redis (port 6379)
 - Valkey (port 6380)
 - Memcached (port 11211)
+- PostgreSQL (port 5432)
 - Development container
 
 #### Option B: Local Environment
@@ -42,9 +55,18 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install package and dependencies
 make install
-# or
+
+# Or with Valkey support (Python 3.10+)
+INSTALL_VALKEY=true make install
+```
+
+Alternative manual installation:
+```bash
 pip install -e .
 pip install -r requirements.txt
+
+# For Valkey support
+pip install -e .[dev,valkey]
 ```
 
 Start external services:
@@ -86,6 +108,28 @@ make test_docker
 # Local
 make test_local
 ```
+
+### Testing with Valkey Support
+
+```bash
+# Docker with Valkey
+INSTALL_VALKEY=true make test_docker
+
+# Local (requires Valkey installed: pip install django-valkey)
+INSTALL_VALKEY=true make test_local
+```
+
+### Testing with Different Python Versions
+
+```bash
+# Docker with Python 3.11
+PYTHON_VERSION=3.11 make test_docker
+
+# Docker with Python 3.11 and Valkey
+PYTHON_VERSION=3.11 INSTALL_VALKEY=true make test_docker
+```
+
+**Note:** Valkey support requires Python 3.10+. When testing with Python 3.9, Valkey will be automatically skipped.
 
 ### Run Specific Tests
 
@@ -162,6 +206,34 @@ View-layer functional tests:
 - Test through Django test client
 - Run against all cache backends
 - Use `subTest` for backend iteration
+
+## Environment Variables Reference
+
+When developing or testing, you can use these environment variables to control the build and installation:
+
+### Installation & Setup
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `INSTALL_VALKEY` | `false` | Install `django-valkey` optional dependency. Requires Python 3.10+ |
+| `PYTHON_VERSION` | `3.10` | Python version to use in Docker containers |
+
+### Examples
+
+```bash
+# Default: Python 3.10, no Valkey
+make install
+make test_docker
+
+# With Valkey support (local)
+INSTALL_VALKEY=true make install
+
+# Different Python version (Docker)
+PYTHON_VERSION=3.11 make docker_up
+
+# All options combined
+PYTHON_VERSION=3.12 INSTALL_VALKEY=true make test_docker
+```
 
 ## Making Changes
 

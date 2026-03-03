@@ -8,7 +8,7 @@ help:
 	@echo "  make clean           		Remove build artifacts"
 	@echo "  make build           		Build sdist and wheel (in ./dist)"
 	@echo "  make install_requirements 	Install all dev dependencies"
-	@echo "  make install         		Install dependencies and package in editable mode"
+	@echo "  make install         		Install dependencies and package (use INSTALL_VALKEY=true for valkey)"
 	@echo "  make uninstall       		Uninstall package"
 	@echo "  make uninstall_all   		Uninstall all packages"
 	@echo "  make test_install    		Check if package can be imported"
@@ -23,6 +23,16 @@ help:
 	@echo "  make docker_up       		Start all Docker services (dev, Redis, cluster)"
 	@echo "  make docker_down     		Stop all Docker services and clean volumes"
 	@echo "  make docker_shell    		Open shell in dev container"
+	@echo ""
+	@echo "Environment variables:"
+	@echo "  INSTALL_VALKEY=true  		Install django-valkey (requires Python 3.10+)"
+	@echo "  PYTHON_VERSION       		Set Python version for Docker (default: 3.10)"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make install                          # Install base package"
+	@echo "  INSTALL_VALKEY=true make install      # Install with valkey support"
+	@echo "  PYTHON_VERSION=3.11 make test_docker  # Test with Python 3.11"
+	@echo "  INSTALL_VALKEY=true make test_docker  # Test with valkey support"
 
 clean:
 	rm -rf build dist *.egg-info
@@ -34,7 +44,13 @@ install_requirements:
 	python -m pip install -r requirements.txt
 
 install: install_requirements
-	python -m pip install -e .
+	@if [ "$(INSTALL_VALKEY)" = "true" ] && python -c 'import sys; sys.exit(0 if sys.version_info >= (3,10) else 1)' 2>/dev/null; then \
+		echo "Installing with valkey support (Python 3.10+)..."; \
+		python -m pip install -e .[dev,valkey]; \
+	else \
+		echo "Installing base package (valkey not available or Python < 3.10)..."; \
+		python -m pip install -e .[dev]; \
+	fi
 
 uninstall:
 	python -m pip uninstall -y $(PACKAGE_NAME) || true
@@ -58,7 +74,8 @@ test_local:
 	@echo "✅ Tests completed"
 
 test_docker:
-	@echo "Starting Docker services..."
+	@echo "Starting Docker services with PYTHON_VERSION=$${PYTHON_VERSION:-3.10} and INSTALL_VALKEY=$${INSTALL_VALKEY:-false}"
+	PYTHON_VERSION=$${PYTHON_VERSION:-3.10} INSTALL_VALKEY=$${INSTALL_VALKEY:-false} docker compose build
 	docker compose up -d
 	@echo "Waiting for services to be ready..."
 	@sleep 3

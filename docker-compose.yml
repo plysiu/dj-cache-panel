@@ -5,6 +5,9 @@ services:
     build:
       context: .
       dockerfile: example_project/Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
+        INSTALL_VALKEY: ${INSTALL_VALKEY:-false}
     ports:
       - "8000:8000"
     volumes:
