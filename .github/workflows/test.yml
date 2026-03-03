@@ -61,10 +61,11 @@ jobs:
 
       - name: Install package and dependencies
         run: |
-          if [ "${{ matrix.valkey }}" = "true" ]; then
-            pip install .[dev,valkey]
-          else
+          if [ "${{ matrix.valkey }}" = "false" ]; then
             pip install .[dev]
+          else
+            pip install .[dev,valkey]
+
           fi
           pip install "Django~=${{ matrix.django-version }}.0"
 
