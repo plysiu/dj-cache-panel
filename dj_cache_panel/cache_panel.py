@@ -16,7 +16,6 @@ BACKEND_PANEL_MAP_DEFAULT = {
     "django.core.cache.backends.redis.RedisCache": "RedisCachePanel",  # Django's built-in (4.0+)
     "django_redis.cache.RedisCache": "DjangoRedisCachePanel",  # django-redis library
     # Valkey cache backend  
-    "django_valkey.cache.ValkeyCache": "ValkeyCachePanel",
     # Memcached backends
     "django.core.cache.backends.memcached.PyMemcacheCache": "MemcachedCachePanel",
     "django.core.cache.backends.memcached.PyLibMCCache": "MemcachedCachePanel",
@@ -28,6 +27,13 @@ BACKEND_PANEL_MAP_DEFAULT = {
     # Dummy cache
     "django.core.cache.backends.dummy.DummyCache": "DummyCachePanel",
 }
+
+
+try:
+    import django_valkey
+    BACKEND_PANEL_MAP_DEFAULT["django_valkey.cache.ValkeyCache"] = "ValkeyCachePanel"
+except ImportError:
+    pass
 
 # Replace the default backend panel map with any custom mappings. Should realistically never be used.
 BACKEND_PANEL_MAP = DJ_CACHE_PANEL_SETTINGS.get(
