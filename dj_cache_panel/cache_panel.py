@@ -1,4 +1,5 @@
 import fnmatch
+import importlib
 import time
 from django.db import connection
 from django.conf import settings
@@ -28,12 +29,8 @@ BACKEND_PANEL_MAP_DEFAULT = {
     "django.core.cache.backends.dummy.DummyCache": "DummyCachePanel",
 }
 
-
-try:
-    import django_valkey
+if importlib.util.find_spec("django_valkey") is not None:
     BACKEND_PANEL_MAP_DEFAULT["django_valkey.cache.ValkeyCache"] = "ValkeyCachePanel"
-except ImportError:
-    pass
 
 # Replace the default backend panel map with any custom mappings. Should realistically never be used.
 BACKEND_PANEL_MAP = DJ_CACHE_PANEL_SETTINGS.get(
@@ -883,6 +880,7 @@ class RedisClusterCachePanel(CachePanel):
         "add_key": True,
         "flush_cache": True,
     }
+    
     
 class ValkeyCachePanel(DjangoRedisCachePanel):
     """

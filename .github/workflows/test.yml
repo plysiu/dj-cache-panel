@@ -95,8 +95,5 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: >
-            unittests,
-            python-${{ matrix.python-version }},
-            django-${{ matrix.django-version }}
-            ${{ matrix.valkey && ',valkey' || '' }}
+            unittests,python-${{ matrix.python-version }},django-${{ matrix.django-version }}${{ matrix.valkey && ',valkey' || '' }}
           fail_ci_if_error: true

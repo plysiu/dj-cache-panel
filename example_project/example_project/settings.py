@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import importlib
 import os
 from pathlib import Path
 
@@ -193,14 +194,11 @@ CACHES = {
     #     "BACKEND": "mypackage.backends.whatever.WhateverCache",
     # },
 }
-try:
-    import django_valkey
+if importlib.util.find_spec("django_valkey") is not None:
     CACHES["django_valkey"] = {
         "BACKEND": "django_valkey.cache.ValkeyCache",
         "LOCATION": "valkey://valkey:6380/0",
     }
-except ImportError:
-    pass
 
 DJ_CACHE_PANEL_SETTINGS = {
     # Optional: completely replace the default backend-to-panel mapping
