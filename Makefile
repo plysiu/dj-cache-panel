@@ -1,7 +1,7 @@
 PACKAGE_NAME = dj_cache_panel
 PYPI_REPO ?= pypi   # can be 'testpypi' or 'pypi'
 
-.PHONY: help clean build publish test install
+.PHONY: help clean build publish test install test_docker_all test_docker_all_clean
 
 help:
 	@echo "Makefile targets:"
@@ -13,6 +13,8 @@ help:
 	@echo "  make uninstall_all   		Uninstall all packages"
 	@echo "  make test_install    		Check if package can be imported"
 	@echo "  make test_docker           Run tests inside Docker dev container"
+	@echo "  make test_docker_all       Run tests on full matrix (Python 3.9-3.14, Django 4.2/5.2/6.0, ±Valkey)"
+	@echo "  make test_docker_all_clean Clean test matrix results"
 	@echo "  make test_local            Run tests inside local environment"
 	@echo "  make test_coverage   		Run tests with coverage report"
 	@echo "  make coverage_html   		Generate HTML coverage report"
@@ -27,12 +29,18 @@ help:
 	@echo "Environment variables:"
 	@echo "  INSTALL_VALKEY=true  		Install django-valkey (requires Python 3.10+)"
 	@echo "  PYTHON_VERSION       		Set Python version for Docker (default: 3.10)"
+	@echo "  FILTER_PYTHON        		Filter test matrix by Python version(s) (e.g., '3.10 3.11')"
+	@echo "  FILTER_DJANGO        		Filter test matrix by Django version(s) (e.g., '4.2 6.0')"
+	@echo "  FILTER_VALKEY        		Filter test matrix by Valkey (true/false)"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make install                          # Install base package"
-	@echo "  INSTALL_VALKEY=true make install      # Install with valkey support"
-	@echo "  PYTHON_VERSION=3.11 make test_docker  # Test with Python 3.11"
-	@echo "  INSTALL_VALKEY=true make test_docker  # Test with valkey support"
+	@echo "  make install                            # Install base package"
+	@echo "  INSTALL_VALKEY=true make install        # Install with valkey support"
+	@echo "  PYTHON_VERSION=3.11 make test_docker    # Test with Python 3.11"
+	@echo "  INSTALL_VALKEY=true make test_docker    # Test with valkey support"
+	@echo "  make test_docker_all                    # Run full test matrix (25 combinations)"
+	@echo "  FILTER_PYTHON=3.12 make test_docker_all # Test only Python 3.12"
+	@echo "  FILTER_DJANGO=6.0 make test_docker_all  # Test only Django 6.0"
 
 clean:
 	rm -rf build dist *.egg-info
@@ -91,6 +99,56 @@ test_coverage:
 	@echo "Running all tests in dev container..."
 	@docker compose exec dev bash -c "cd /app && REDIS_HOST=redis VALKEY_HOST=valkey MEMCACHED_HOST=memcached python -m pytest --cov=dj_cache_panel --cov-report=xml --cov-report=html --cov-report=term-missing tests/"
 	@echo "✅ All tests completed"
+
+test_docker_all:
+	@mkdir -p test-results
+	@docker compose up -d
+	@sleep 3
+	@echo "🚀 Starting full test matrix (Python 3.9-3.14, Django 4.2/5.2/6.0, ±Valkey)"
+	@echo ""
+	@bash -c '\
+	passed=0; failed=0; total=0; skipped=0; \
+	for py in 3.9 3.10 3.11 3.12 3.13 3.14; do \
+	  if [ -n "$(FILTER_PYTHON)" ] && ! echo "$(FILTER_PYTHON)" | grep -qw "$$py"; then continue; fi; \
+	  for dj in 4.2 5.2 6.0; do \
+	    if [ -n "$(FILTER_DJANGO)" ] && ! echo "$(FILTER_DJANGO)" | grep -qw "$$dj"; then continue; fi; \
+	    for valkey in false true; do \
+	      if [ -n "$(FILTER_VALKEY)" ] && [ "$(FILTER_VALKEY)" != "$$valkey" ]; then continue; fi; \
+	      skip=0; \
+	      if [ "$$py" = "3.9" ] && ([ "$$dj" != "4.2" ] || [ "$$valkey" = "true" ]); then skip=1; fi; \
+	      if [ "$$py" = "3.14" ] && [ "$$dj" = "4.2" ]; then skip=1; fi; \
+	      if [ "$$py" = "3.10" ] && [ "$$dj" = "6.0" ]; then skip=1; fi; \
+	      if [ "$$py" = "3.11" ] && [ "$$dj" = "6.0" ]; then skip=1; fi; \
+	      if [ "$$dj" = "5.2" ] && [ "$$py" = "3.9" ]; then skip=1; fi; \
+	      if [ $$skip -eq 1 ]; then skipped=$$((skipped + 1)); continue; fi; \
+	      total=$$((total + 1)); combo="py$$py-dj$$dj-valkey$$valkey"; logfile="test-results/$$combo.log"; \
+	      printf "  [$$total] Testing $$combo... "; \
+	      if docker build -q --build-arg PYTHON_VERSION=$$py --build-arg DJANGO_VERSION=$$dj --build-arg INSTALL_VALKEY=$$valkey -f example_project/Dockerfile -t dj-cache-test:$$combo . > /tmp/$$combo.build 2>&1 && \
+	      docker run --rm --network dj-cache-panel_default \
+	        -e REDIS_HOST=redis -e VALKEY_HOST=valkey -e MEMCACHED_HOST=memcached -e POSTGRES_HOST=postgres \
+	        dj-cache-test:$$combo bash -c "cd /app && python -m pytest tests/ -v" > $$logfile 2>&1; then \
+	        echo "✅ PASSED"; passed=$$((passed + 1)); \
+	        rm -f /tmp/$$combo.build; \
+	      else \
+	        echo "❌ FAILED"; failed=$$((failed + 1)); \
+	        if [ -f /tmp/$$combo.build ]; then cat /tmp/$$combo.build >> $$logfile; rm -f /tmp/$$combo.build; fi; \
+	      fi; \
+	    done; \
+	  done; \
+	done; \
+	echo ""; echo "═════════════════════════════════════════════════════"; \
+	echo "Test Matrix Summary"; echo "═════════════════════════════════════════════════════"; \
+	echo "Total tested: $$total  |  Passed: $$passed  |  Failed: $$failed  |  Skipped: $$skipped"; \
+	echo "═════════════════════════════════════════════════════"; \
+	{ echo "Results: test-results/"; echo "Total: $$total, Passed: $$passed, Failed: $$failed, Skipped: $$skipped"; } > test-results/summary.txt; \
+	if [ $$failed -gt 0 ]; then exit 1; fi; \
+	'
+
+test_docker_all_clean:
+	@echo "Cleaning test matrix results..."
+	@rm -rf test-results/
+	@docker images | grep 'dj-cache-panel-test' | awk '{print $$3}' | xargs -r docker rmi -f
+	@echo "✅ Cleaned"
 
 coverage_html: test_coverage
 	@echo "Coverage report generated in htmlcov/index.html"
