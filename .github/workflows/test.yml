@@ -78,6 +78,12 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
+          VALKEY_HOST: localhost
+          VALKEY_PORT: 6380
+          MEMCACHED_HOST: localhost
+          MEMCACHED_PORT: 11211
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
