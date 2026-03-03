@@ -79,7 +79,6 @@ OPERATIONAL_CACHES = [
     "filesystem",
     "redis",
     "django_redis",
-    "django_valkey",
     "memcached",
 ]
 
