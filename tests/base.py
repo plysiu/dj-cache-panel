@@ -27,7 +27,7 @@ VALKEY_PORT = os.environ.get("VALKEY_PORT", "6380")
 MEMCACHED_HOST = os.environ.get("MEMCACHED_HOST", "localhost")
 MEMCACHED_PORT = os.environ.get("MEMCACHED_PORT", "11211")
 
-HAS_DJANGO_VALKEY = importlib.util.find_spec("django_valkey") is not False
+HAS_DJANGO_VALKEY = importlib.util.find_spec("django_valkey") is not None
 # Define cache configurations for testing
 # Redis, Valkey and Memcached are assumed to be available
 TEST_CACHES = {
