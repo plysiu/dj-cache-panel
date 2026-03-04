@@ -276,7 +276,7 @@ services:
 
 variables:
   REDIS_HOST: redis
-  VALKEY_HOST: rvalkeys
+  VALKEY_HOST: valkeys
   MEMCACHED_HOST: memcached
 ```
 

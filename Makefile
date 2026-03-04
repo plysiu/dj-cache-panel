@@ -147,7 +147,7 @@ test_docker_all:
 test_docker_all_clean:
 	@echo "Cleaning test matrix results..."
 	@rm -rf test-results/
-	@docker images | grep 'dj-cache-panel-test' | awk '{print $$3}' | xargs -r docker rmi -f
+	@docker image ls --filter=reference='dj-cache-test:*' -q | xargs -r docker rmi -f
 	@echo "✅ Cleaned"
 
 coverage_html: test_coverage
